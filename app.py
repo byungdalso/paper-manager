@@ -187,18 +187,21 @@ with col_L:
     filtered_students = [s for s in students
                          if stu_search.lower() in s.lower()] if stu_search else students
 
-    # 학생 버튼 (클릭 → 필터). use_container_width 제거해 라벨 너비로 축소
+    # 학생 버튼 — 2열 그리드 (각 컬럼 안에서는 풀폭으로 통일감)
     current_filter = st.session_state.filter_student
-    for name in filtered_students:
-        n_papers = len(st.session_state.data.get(name, []))
-        label = f"{'▶ ' if name==current_filter else ''}{name} ({n_papers})"
-        if st.button(label, key=f"stu_{name}"):
-            if st.session_state.filter_student == name:
-                st.session_state.filter_student = ""   # 토글
-            else:
-                st.session_state.filter_student = name
-                st.session_state.filter_journal = ""
-            st.rerun()
+    for i in range(0, len(filtered_students), 2):
+        cols = st.columns(2)
+        for j, name in enumerate(filtered_students[i:i+2]):
+            n_papers = len(st.session_state.data.get(name, []))
+            label = f"{'▶ ' if name==current_filter else ''}{name} ({n_papers})"
+            with cols[j]:
+                if st.button(label, key=f"stu_{name}", use_container_width=True):
+                    if st.session_state.filter_student == name:
+                        st.session_state.filter_student = ""   # 토글
+                    else:
+                        st.session_state.filter_student = name
+                        st.session_state.filter_journal = ""
+                    st.rerun()
 
     # 전체 보기
     if st.button("📋 전체 논문 보기", use_container_width=True):
