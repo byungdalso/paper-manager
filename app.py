@@ -160,7 +160,14 @@ with st.sidebar:
 init_state()
 
 st.title("📚 Paper Assignment Manager")
-st.caption("학생별 읽을 논문 목록 관리")
+
+# 전체 통계 (학생 수, 고유 논문 수)
+_n_students = len(st.session_state.data)
+_unique = set()
+for _papers in st.session_state.data.values():
+    for _p in _papers:
+        _unique.add((_p.get("title",""), _p.get("journal",""), _p.get("added","")))
+st.caption(f"학생별 읽을 논문 목록 관리  ·  👥 학생 **{_n_students}명**  ·  📄 논문 **{len(_unique)}편**")
 
 # ── 레이아웃 ──────────────────────────────────────────────────────────────────
 col_L, col_R = st.columns([1, 2.8], gap="large")
@@ -180,12 +187,12 @@ with col_L:
     filtered_students = [s for s in students
                          if stu_search.lower() in s.lower()] if stu_search else students
 
-    # 학생 버튼 (클릭 → 필터)
+    # 학생 버튼 (클릭 → 필터). use_container_width 제거해 라벨 너비로 축소
     current_filter = st.session_state.filter_student
     for name in filtered_students:
         n_papers = len(st.session_state.data.get(name, []))
-        label = f"{'▶ ' if name==current_filter else '   '}{name}  ({n_papers}편)"
-        if st.button(label, key=f"stu_{name}", use_container_width=True):
+        label = f"{'▶ ' if name==current_filter else ''}{name} ({n_papers})"
+        if st.button(label, key=f"stu_{name}"):
             if st.session_state.filter_student == name:
                 st.session_state.filter_student = ""   # 토글
             else:
